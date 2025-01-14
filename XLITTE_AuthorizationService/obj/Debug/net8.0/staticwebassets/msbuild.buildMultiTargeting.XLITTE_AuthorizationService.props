@@ -1,0 +1,3 @@
+﻿<Project>
+  <Import Project="..\build\XLITTE_AuthorizationService.props" />
+</Project>
