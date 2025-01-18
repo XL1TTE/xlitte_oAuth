@@ -1,3 +1,6 @@
+using Domain;
+using Persistence.EF_Repository;
+using Persistence.Interfaces;
 using Scalar.AspNetCore;
 
 
@@ -22,6 +25,12 @@ namespace XLITTE_AuthorizationService
                     Version = "v0.0.1"
                 });
             });
+
+
+            builder.Services
+                .AddSingleton<ApplicationContext>()
+                .AddSingleton<IEntityRepository<User>, UsersRepository>()
+                .AddSingleton<ClientApplicationsRepository>();
 
             var app = builder.Build();
 

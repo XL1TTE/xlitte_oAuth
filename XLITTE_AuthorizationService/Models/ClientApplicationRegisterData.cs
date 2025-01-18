@@ -5,6 +5,7 @@
         string ApplicationDescription,
         string ApplicationPrivacyPolicy,
         string HomeURL,
-        List<string> RedirectURLs
+        List<string> RedirectURLs,
+        List<string> Scopes
         );
 }
