@@ -17,7 +17,9 @@ namespace Persistence.EF_Repository
         public DbSet<ApplicationScope> ApplicationScopes {  get; set; }
         public DbSet<Scope> Scopes {  get; set; }
 
-        public ApplicationContext(){}
+        public ApplicationContext(){
+        Database.EnsureCreated();
+        }
 
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {

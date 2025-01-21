@@ -25,7 +25,7 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
         public async Task<IActionResult> RegisterClientApplication([FromBody] ClientApplicationRegisterData ApplicationData)
         {
             string client_secret = ClientSecretsGenerator.Generate();
-            string client_id = $"{ApplicationData.ApplicationName}:{ClientIDGenerator.Generate(ApplicationData.ApplicationName)}";
+            string client_id = $"{ApplicationData.ApplicationName}:{ClientIDGenerator.Generate(ApplicationData.ApplicationDescription)}";
 
             var json_response = new {
                 client_id = client_id,

@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.EntityFrameworkCore;
 using Persistence.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -9,19 +10,21 @@ using System.Threading.Tasks;
 
 namespace Persistence.EF_Repository
 {
-    public class UsersRepository : IEntityRepository<User>
+    public class UsersRepository
     {
         private readonly ApplicationContext db;
         public UsersRepository(ApplicationContext db)
         {
             this.db = db;
         }
-        public async Task<bool> AddEntity(User entity)
+        public async Task<bool> AddAsync(User entity)
         {
             try
             {
                 await db.Users.AddAsync(entity);
-                db.SaveChanges();
+                await db.SaveChangesAsync();
+                db.ChangeTracker.Clear();
+
                 return true;
             }
             catch
@@ -52,10 +55,24 @@ namespace Persistence.EF_Repository
             if (user != null)
             {
                 db.Users.Remove(user);
-                db.SaveChanges();
+                db.SaveChangesAsync();
+                db.ChangeTracker.Clear();
+
                 return true;
             }
             return false;
+        }
+    
+        public async Task<User?> GetByEmail(string email)
+        {
+            User? user = await db.Users.FirstOrDefaultAsync(o => o.Email == email);
+
+            if (user == null)
+            {
+                return null;
+            }
+
+            return user;
         }
     }
 }

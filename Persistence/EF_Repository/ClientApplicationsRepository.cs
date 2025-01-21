@@ -22,7 +22,8 @@ namespace Persistence.EF_Repository
             try
             {
                 await _db.ClientApplications.AddAsync(entity);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
+                _db.ChangeTracker.Clear();
                 return true;
             }
             catch
@@ -57,14 +58,16 @@ namespace Persistence.EF_Repository
             return app;
         }
 
-        public bool RemoveById(int id)
+        public async Task<bool> RemoveById(int id)
         {
             ClientApplication? app = _db.ClientApplications.Find([id]);
 
             if (app != null)
             {
                 _db.ClientApplications.Remove(app);
-                _db.SaveChanges();
+                await _db.SaveChangesAsync();
+                _db.ChangeTracker.Clear();
+
                 return true;
             }
             return false;

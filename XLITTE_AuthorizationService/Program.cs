@@ -29,7 +29,7 @@ namespace XLITTE_AuthorizationService
 
             builder.Services
                 .AddSingleton<ApplicationContext>()
-                .AddSingleton<IEntityRepository<User>, UsersRepository>()
+                .AddSingleton<UsersRepository>()
                 .AddSingleton<ClientApplicationsRepository>();
 
             var app = builder.Build();
