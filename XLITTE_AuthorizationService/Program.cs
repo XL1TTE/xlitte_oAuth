@@ -32,6 +32,15 @@ namespace XLITTE_AuthorizationService
                 .AddSingleton<UsersRepository>()
                 .AddSingleton<ClientApplicationsRepository>();
 
+
+            builder.Services.AddCors(opt =>
+            {
+                opt.AddPolicy("AllowSpecificOrigin",
+                    builder => builder.WithOrigins("http://127.0.0.1:8000")
+                    .AllowAnyMethod()
+                    .AllowAnyHeader());
+            });
+
             var app = builder.Build();
 
             // Configure the HTTP request pipeline.
@@ -48,9 +57,10 @@ namespace XLITTE_AuthorizationService
                 });
             }
 
+            
 
             app.UseAuthorization();
-
+            app.UseCors("AllowSpecificOrigin");
 
             app.MapControllers();
 

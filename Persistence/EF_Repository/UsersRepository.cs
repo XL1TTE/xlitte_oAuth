@@ -63,7 +63,7 @@ namespace Persistence.EF_Repository
             return false;
         }
     
-        public async Task<User?> GetByEmail(string email)
+        public async Task<User?> GetByEmailAsync(string email)
         {
             User? user = await db.Users.FirstOrDefaultAsync(o => o.Email == email);
 

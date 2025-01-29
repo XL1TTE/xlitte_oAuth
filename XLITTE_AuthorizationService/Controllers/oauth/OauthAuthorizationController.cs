@@ -1,6 +1,8 @@
 ﻿using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using System;
+using System.Security.AccessControl;
 using XLITTE_AuthorizationService.Models;
 
 namespace XLITTE_AuthorizationService.Controllers.oauth
@@ -9,7 +11,7 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
     [ApiController]
     public class OauthAuthorizationController : ControllerBase
     {
-        [HttpPost("authorize")]
+        [HttpGet("authorize")]
         [ProducesResponseType(typeof(AuthorizationQueryParameters), StatusCodes.Status200OK)]
         [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
         public IActionResult AuthorizeUserForApplication(
@@ -17,20 +19,18 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
             [FromQuery] string response_type,
             [FromQuery] string state,
             [FromQuery] string redirect_uri
-            )
+        )
         {
-            //bool SuccessResolved = TryResolveAuthorizationRequest(out AuthorizationQueryParameters? result);
-            //if (!SuccessResolved)
-            //{
-            //    return BadRequest(
-            //        "Your url should look like " +
-            //        "https://example.com/oauth/authorize?client_id=example&response_type=code&scope=profile&state=csrf_token&redirect_uri=https://example.com"
-            //        );
-            //}
-            //return Ok(result);
 
-            var result = new AuthorizationQueryParameters(client_id, response_type, state, redirect_uri);
-            return Ok(result);
+            var json = new
+            {
+                url = "http://127.0.0.1:8000/SignIn/v1"
+            };
+
+            return Ok(json);
+
+
+            //return Redirect($"http://127.0.0.1:8000/oauth/authorize?client_id={client_id}&response_type={response_type}&scope=profile&redirect_uri={redirect_uri}");
         }
 
         private bool TryResolveAuthorizationRequest(out AuthorizationQueryParameters? result)
