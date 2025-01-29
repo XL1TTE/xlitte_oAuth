@@ -13,6 +13,7 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
     public class UsersController : ControllerBase
     {
         private readonly UsersRepository _usersRepository;
+        private readonly string _service_id = "cf792f92-949e-4227-bc8d-e5cf5eb15491";
         private readonly string _secretKey = "3a2d289e-e044-4f98-9bfe-6ffb50e4d71b";
         public UsersController(UsersRepository usersRepository)
         {
@@ -73,11 +74,13 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
                     {
                         alg = "HMAC256",
                         typ = "JWT",
-                        iat = DateTime.UtcNow.ToLongTimeString(),
-                        exp = DateTime.UtcNow.AddHours(1).ToLongTimeString(),
+
                     };
                     var Payload = new
                     {
+                        issuer = _service_id,
+                        iat = DateTime.UtcNow.ToLongTimeString(),
+                        exp = DateTime.UtcNow.AddHours(1).ToLongTimeString(),
                         UserId = NewUser.Id,
                         Username = NewUser.Login,
                         UserEmail = NewUser.Email,
