@@ -23,22 +23,30 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
 
         [HttpPost("login")]
         public async Task<IActionResult> Authenticate(
-            [FromBody] UserLoginRequest loginRequest)
+            [FromBody] UserLoginRequest? loginRequest)
         {
-            if (loginRequest == null || string.IsNullOrWhiteSpace(loginRequest.Email) || string.IsNullOrWhiteSpace(loginRequest.Password))
+            if (!Request.Headers.TryGetValue("Authorization", out var auth_token))
             {
-                return BadRequest("Email and Password must be provided.");
-            }
-            User? user = await _usersRepository.GetByEmailAsync(loginRequest.Email);
 
-            if (user == null || !PasswordSecurityService.VerifyPassword(loginRequest.Password, user.PasswordHash, user.PasswordSalt))
-            {
-                return Unauthorized("Incorrect email or password.");
-            }
+                if (loginRequest == null || string.IsNullOrWhiteSpace(loginRequest.Email) || string.IsNullOrWhiteSpace(loginRequest.Password))
+                {
+                    return BadRequest("Email and Password must be provided.");
+                }
+                User? user = await _usersRepository.GetByEmailAsync(loginRequest.Email);
 
-            if (!Request.Headers.TryGetValue("Authorization", out var auth_token) || !auth_token.ToString().StartsWith("Bearer "))
+                if (user == null || !PasswordSecurityService.VerifyPassword(loginRequest.Password, user.PasswordHash, user.PasswordSalt))
+                {
+                    return Unauthorized("Incorrect email or password.");
+                }
+                else
+                {
+                    return Ok($"{user.Email}: Authorized.");
+                }
+            }
+            if(!auth_token.ToString().StartsWith("Bearer "))
             {
-                return Unauthorized("Authorization token is missing or invalid.");
+                return BadRequest("Use followed scheme for token auth: Authorization: Bearer {token}.");
+
             }
 
             string bearer = auth_token.ToString().Split(' ')[1];
@@ -50,6 +58,7 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
             }
 
             return Ok($"{bearer}: Authorized.");
+
         }
 
         [HttpPost("register")]

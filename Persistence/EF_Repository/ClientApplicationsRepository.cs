@@ -1,4 +1,5 @@
 ﻿using Domain;
+using Microsoft.EntityFrameworkCore;
 using Persistence.Interfaces;
 using System;
 using System.Collections.Generic;
@@ -44,7 +45,10 @@ namespace Persistence.EF_Repository
         }
         public IEnumerable<ClientApplication> GetAll()
         {
-            return _db.ClientApplications.AsEnumerable();
+            return _db.ClientApplications
+                .Include(o => o.RedirectUrls)
+                .Include(o => o.ApplicationScopes).ThenInclude(o => o.Scope)
+                .AsEnumerable();
         }
 
         public ClientApplication? GetById(int id)

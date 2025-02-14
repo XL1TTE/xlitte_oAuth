@@ -1,8 +1,11 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using Domain;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Primitives;
+using Persistence.EF_Repository;
 using System;
 using System.Security.AccessControl;
+using System.Text.Json;
 using XLITTE_AuthorizationService.Models;
 
 namespace XLITTE_AuthorizationService.Controllers.oauth
@@ -11,26 +14,68 @@ namespace XLITTE_AuthorizationService.Controllers.oauth
     [ApiController]
     public class OauthAuthorizationController : ControllerBase
     {
+        private readonly ClientApplicationsRepository _clients;
+        public OauthAuthorizationController(ClientApplicationsRepository clients)
+        {
+            _clients = clients;
+        }
+
         [HttpGet("authorize")]
-        [ProducesResponseType(typeof(AuthorizationQueryParameters), StatusCodes.Status200OK)]
-        [ProducesResponseType(typeof(string), StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(typeof(object), 200, "application/json")]
+        [ProducesResponseType(typeof(string), 400, "application/json")]         
         public IActionResult AuthorizeUserForApplication(
-            [FromQuery] string client_id,
+        [FromQuery] string client_id,
             [FromQuery] string response_type,
             [FromQuery] string state,
             [FromQuery] string redirect_uri
         )
         {
 
-            var json = new
+            if(VerifyClientRequestWithClientReturn(client_id, redirect_uri, out var client) && client != null)
             {
-                url = "http://127.0.0.1:8000/SignIn/v1"
-            };
+                var json = new
+                {
+                    url = $"http://127.0.0.1:8000/SignIn/v1",
 
-            return Ok(json);
+                    application_data = new ApplicationData
+                    (
+                        client.ApplicationName,
+                        client.ApplicationDescription,
+                        "sadawfa",
+                        client.ApplicationScopes
+                    )
+                };
 
+                var ser_json = JsonSerializer.Serialize(json);
 
-            //return Redirect($"http://127.0.0.1:8000/oauth/authorize?client_id={client_id}&response_type={response_type}&scope=profile&redirect_uri={redirect_uri}");
+                return Ok(ser_json);
+            }
+            return BadRequest("Not found!");
+       
+        }
+
+        private bool VerifyClientRequest(string client_id, string redirect_uri)
+        {
+            var _client = _clients.GetAll().FirstOrDefault(client => client.Client_Id == client_id);
+
+            if(_client != null && _client.RedirectUrls.Any(item => item.Url == redirect_uri))
+            {
+                return true;
+            }
+            return false;
+        }
+
+        private bool VerifyClientRequestWithClientReturn(string client_id, string redirect_uri, out ClientApplication? client)
+        {
+            var _client = _clients.GetAll().FirstOrDefault(client => client.Client_Id == client_id);
+
+            if (_client != null && _client.RedirectUrls.Any(item => item.Url == redirect_uri))
+            {
+                client = _client;
+                return true;
+            }
+            client = _client;
+            return false;
         }
 
         private bool TryResolveAuthorizationRequest(out AuthorizationQueryParameters? result)

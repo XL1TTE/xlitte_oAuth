@@ -50,10 +50,9 @@ namespace Persistence.EF_Repository
                 .WithMany(ca => ca.RedirectUrls)
                 .HasForeignKey(ru => ru.ClientId);
 
-            // Настройка отношений между ClientApplication и Scope через ApplicationScope
             modelBuilder.Entity<ApplicationScope>()
                 .HasOne(a => a.ClientApplication)
-                .WithMany(c => c.ApplicationScopes) // Здесь нужно добавить свойство в ClientApplication
+                .WithMany(c => c.ApplicationScopes)
                 .HasForeignKey(a => a.ClientId);
 
             modelBuilder.Entity<ApplicationScope>()
@@ -61,7 +60,6 @@ namespace Persistence.EF_Repository
                 .WithMany()
                 .HasForeignKey(a => a.ScopeId);
 
-            // Настройка уникальности для Client_Id в ClientApplication
             modelBuilder.Entity<ClientApplication>()
                 .HasIndex(ca => ca.Client_Id)
                 .IsUnique();
